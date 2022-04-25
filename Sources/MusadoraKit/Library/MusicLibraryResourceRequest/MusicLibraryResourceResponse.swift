@@ -8,7 +8,7 @@
 import MusicKit
 
 /// An object that contains results for a library resource request.
-public struct MusicLibraryResourceResponse<MusicItemType> where MusicItemType: MusicItem {
+public struct MusicLibraryResourceResponse<MusicItemType> where MusicItemType: FilterableLibraryItem & LibraryRelationshipItem & Decodable {
 
     /// A collection of items matching the filter used in
     /// the originating ``MusicLibraryResourceRequest``.

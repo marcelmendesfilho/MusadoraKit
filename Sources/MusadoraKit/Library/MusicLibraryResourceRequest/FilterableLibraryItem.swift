@@ -7,6 +7,7 @@
 
 import MusicKit
 
+
 /// A declaration of the associated type that contains the set of library music item
 /// properties your app uses as a filter for a library resource request.
 public protocol FilterableLibraryItem: MusicItem {

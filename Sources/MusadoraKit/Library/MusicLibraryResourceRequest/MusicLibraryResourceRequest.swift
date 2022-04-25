@@ -43,6 +43,21 @@ public struct MusicLibraryResourceRequest<MusicItemType: MusicItem & Codable> {
         }
     }
 
+    public init<Value>(matching keyPath: KeyPath<MusicItemType.FilterLibraryType, Value>,
+                       equalTo value: Value,
+                       relationship: MusicItemType.Relationship)
+    where MusicItemType: FilterableLibraryItem & LibraryRelationshipItem {
+        setType()
+        
+        if let relationship = relationship.rawValue as? String {
+            self.relationship = relationship
+        }
+
+        if let id = value as? MusicItemID {
+            self.id = id.rawValue
+        }
+    }
+
     /// Creates a request to fetch items using a filter that matches
     /// any value from an array of possible values.
     public init<Value>(matching keyPath: KeyPath<MusicItemType.FilterLibraryType, Value>, memberOf values: [Value]) where MusicItemType: FilterableLibraryItem {
@@ -54,8 +69,12 @@ public struct MusicLibraryResourceRequest<MusicItemType: MusicItem & Codable> {
     }
 
     /// Fetches items from the user's library that match a specific filter.
-    public func response() async throws -> MusicLibraryResourceResponse<MusicItemType> {
+    public func response() async throws -> MusicLibraryResourceResponse<MusicItemType> where MusicItemType: FilterableLibraryItem & LibraryRelationshipItem {
         let url = try libraryEndpointURL
+
+        print(url)
+
+        
         let request = MusicDataRequest(urlRequest: .init(url: url))
         let response = try await request.response()
         let items = try JSONDecoder().decode(MusicItemCollection<MusicItemType>.self, from: response.data)
@@ -63,8 +82,17 @@ public struct MusicLibraryResourceRequest<MusicItemType: MusicItem & Codable> {
     }
 
     private var type: LibraryMusicItemType?
+    private var id: String?
     private var ids: [String]?
+    private var relationship: String?
 }
+
+extension Array where Element: LibraryRelationshipItem {
+  func filtered<Value: Equatable>(by keyPath: KeyPath<Element, Value>, value: Value) -> [Element] {
+    return Array(filter { $0[keyPath: keyPath] == value })
+  }
+}
+
 
 extension MusicLibraryResourceRequest {
     private mutating func setType() {
@@ -90,13 +118,19 @@ extension MusicLibraryResourceRequest {
             components.path = "/v1/me/library/"
             components.path += type.rawValue
 
-            if let ids = ids {
+            if let id = id {
+                components.path += "/\(id)"
+                if let relationship = relationship {
+                    components.path += "/\(relationship)"
+                }
+            } else if let ids = ids {
                 queryItems = [URLQueryItem(name: "ids", value: ids.joined(separator: ","))]
             } else if let limit = limit {
                 queryItems = [URLQueryItem(name: "limit", value: "\(limit)")]
             }
 
             components.queryItems = queryItems
+            
 
             guard let url = components.url else {
                 throw URLError(.badURL)
