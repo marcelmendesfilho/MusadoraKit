@@ -43,4 +43,16 @@ public extension MusadoraKit {
         let response = try await request.response()
         return response.items
     }
+    
+    /// Add songs to the user's library by using their identifiers.
+    /// - Parameters:
+    ///   - ids: The unique identifiers for the songs.
+    /// - Returns: `Bool` indicating if the insert was successfull or not.
+    static func addSongsToLibrary(ids: [MusicItemID]) async throws -> Bool{
+        let request = MusicAddResourcesRequest(types: [.songs:ids])
+        let response = try await request.response()
+        
+        return response
+    }
+
 }
