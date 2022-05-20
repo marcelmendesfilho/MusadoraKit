@@ -43,4 +43,31 @@ public extension MusadoraKit {
         let response = try await request.response()
         return response.items
     }
+    
+    /// Add an album to the user's library by using its identifier.
+    /// - Parameters:
+    ///   - id: The unique identifier for the albums.
+    /// - Returns: `Bool` indicating if the insert was successfull or not.
+    static func addAlbumToLibrary(id: String) async throws -> Bool{
+        let request = MusicAddResourcesRequest(types: [.albums:[MusicItemID(id)]])
+        let response = try await request.response()
+        
+        return response
+    }
+    
+    /// Add multiple albums to the user's library by using their identifiers.
+    /// - Parameters:
+    ///   - ids: The unique identifiers for the albums.
+    /// - Returns: `Bool` indicating if the insert was successfull or not.
+    static func addAlbumToLibrary(ids: [String]) async throws -> Bool{
+        var musicItemIDs = [MusicItemID]()
+        ids.forEach { id in
+            musicItemIDs.append(MusicItemID(id))
+        }
+        let request = MusicAddResourcesRequest(types: [.albums:musicItemIDs])
+        let response = try await request.response()
+        
+        return response
+    }
+
 }
