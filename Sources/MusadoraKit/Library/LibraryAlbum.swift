@@ -59,7 +59,7 @@ public extension MusadoraKit {
     /// - Parameters:
     ///   - ids: The unique identifiers for the albums.
     /// - Returns: `Bool` indicating if the insert was successfull or not.
-    static func addAlbumToLibrary(ids: [String]) async throws -> Bool{
+    static func addAlbumsToLibrary(ids: [String]) async throws -> Bool{
         var musicItemIDs = [MusicItemID]()
         ids.forEach { id in
             musicItemIDs.append(MusicItemID(id))
